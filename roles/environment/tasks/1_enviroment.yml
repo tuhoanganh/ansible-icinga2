@@ -52,6 +52,7 @@
       regexp: "^GSSAPIAuthentication"
       line: "GSSAPIAuthentication no"
       state: present
+      backup: yes
     notify:
        - Restart SSH
 
@@ -122,6 +123,7 @@
       dest: /etc/selinux/config
       regexp: "^SELINUX=enforcing"
       replace: "SELINUX=disabled"
+      backup: yes
 
   - name: ENV [Step 18] - Setup Crontab run check-update
     cron:

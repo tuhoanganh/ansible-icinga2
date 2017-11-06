@@ -156,16 +156,19 @@
       dest: /etc/icinga2/constants.conf
       regexp: '^const PluginDir = "/usr/lib64/nagios/plugins"'
       replace: 'const PluginDir = "/usr/share/icinga2/plugins/libexec"'
+      backup: yes
 
   - name: INITIAL CONFIGURATION - ICINGA2 [Step 21] - Configure Icinga2's Livestatus
     template:
       src: "{{ role_path }}/templates/livestatus.conf.j2"
       dest: "/etc/icinga2/features-enabled/livestatus.conf"
+      backup: yes
 
   - name: INITIAL CONFIGURATION - ICINGA2 [Step 22] - Configure Icinga2's Api User
     template:
       src: "{{ role_path }}/templates/api-users.conf.j2"
       dest: "/etc/icinga2/conf.d/api-users.conf"
+      backup: yes
 
   - name: INITIAL CONFIGURATION - ICINGA2 [Step 23] - Restart Icinga2
     service: 
@@ -206,6 +209,7 @@
     template:
       src: "{{ role_path }}/templates/thruk_local.conf.j2"
       dest: "/etc/thruk/thruk_local.conf"
+      backup: yes
     when: 
       - ui_node == "on"
 
@@ -229,6 +233,7 @@
       insertbefore: '# To enable Nagios basic auth on NagVis use the following options'
       line: '{{ item }}'
       state: present
+      backup: yes
     with_items:
       - '  AuthName "Thruk Monitoring"'
       - '  AuthType Basic'
@@ -266,7 +271,6 @@
       dest: /usr/share/thruk/menu_local.conf
       owner: root
       group: root
-      backup: yes
     when: 
       - ui_node == "on"
 
@@ -276,6 +280,7 @@
       insertbefore: "add_section('name' => 'Current Status');"
       line: '{{ item }}'
       state: present
+      backup: yes
     with_items:
       - "  add_section('name' => 'Nagvis-Map');"
       - "  add_link('name' => \"Nagvis-Map\", 'href' => '/nagvis/frontend/nagvis-js/index.php');"
@@ -288,21 +293,22 @@
     when: 
       - ui_node == "on"
 
-  - name: INITIAL CONFIGURATION - NAGVIS [STEP 35] - Backup nagvis.ini.php file (Only on UI Node)
-    copy:
-      remote_src: True
-      src: /usr/share/nagvis/etc/nagvis.ini.php
-      dest: /usr/share/nagvis/etc/nagvis.ini.php.bak
-      owner: apache
-      group: apache
-      backup: yes
-    when: 
-      - ui_node == "on"
+#  - name: INITIAL CONFIGURATION - NAGVIS [STEP 35] - Backup nagvis.ini.php file (Only on UI Node)
+#    copy:
+#      remote_src: True
+#      src: /usr/share/nagvis/etc/nagvis.ini.php
+#      dest: /usr/share/nagvis/etc/nagvis.ini.php.bak
+#      owner: apache
+#      group: apache
+#      backup: yes
+#    when: 
+#      - ui_node == "on"
 
   - name: INITIAL CONFIGURATION - NAGVIS [STEP 36] - Config nagvis.ini.php file (Only on UI Node)
     template:
       src: "{{ role_path }}/templates/nagvis.ini.php.j2"
       dest: "/usr/share/nagvis/etc/nagvis.ini.php"
+      backup: yes
     when: 
       - ui_node == "on"
 
@@ -312,6 +318,7 @@
       insertafter: 'Allow from all'
       line: '{{ item }}'
       state: present
+      backup: yes
     with_items:
       - '  AuthName "Thruk Monitoring"'
       - '  AuthType Basic'
@@ -325,6 +332,7 @@
       dest: /etc/httpd/conf.d/pnp4nagios.conf
       regexp: "{{ item.old }}"
       replace: "{{ item.new }}"
+      backup: yes
     with_items:
       - { old: 'AuthName "Nagios Access"', new: 'AuthName "Thruk Monitoring"'}
       - { old: 'AuthUserFile /usr/local/nagios/etc/htpasswd.users', new: 'AuthUserFile /etc/thruk/htpasswd'}
@@ -347,6 +355,7 @@
       dest: /usr/share/pnp4nagios/etc/npcd.cfg
       regexp: '^perfdata_spool_dir = /usr/share/pnp4nagios/var/spool'
       replace: 'perfdata_spool_dir = /var/spool/icinga2/perfdata'
+      backup: yes
 
   - name: INITIAL CONFIGURATION - NPCD [STEP 42] - Restart npcd
     service: name=npcd
@@ -392,6 +401,7 @@
       insertafter: 'template Host "generic-host" {'
       line: '  import "pnp-host"'
       state: present
+      backup: yes
 
   - name: INITIAL CONFIGURATION - ICINGA2 [STEP 47] - Config Icinga2's Template file (import pnp-service)
     lineinfile:
@@ -399,6 +409,7 @@
       insertafter: 'template Service "generic-service" {'
       line: '  import "pnp-service"'
       state: present
+      backup: yes
 
   - name: INITIAL CONFIGURATION - ICINGA2 [STEP 48] - Restart icinga2
     service: name=icinga2
@@ -417,6 +428,7 @@
       dest: /etc/idmapd.conf
       regexp: '^#Domain = local.domain.edu'
       replace: Domain = "{{ hostvars[inventory_hostname].ansible_hostname }}"
+      backup: yes
 
   - name: INITIAL CONFIGURATION - NFS [Step 51] - Configure NFS's Path (Only on UI Node)
     template:
@@ -444,6 +456,7 @@
       dest: /etc/fstab
       line: "{{ hostvars[inventory_hostname].ui_node_ip }}:/usr/share/pnp4nagios/var/perfdata /usr/share/pnp4nagios/var/perfdata  nfs  defaults  0 0"
       state: present
+      backup: yes
     when:
       - ui_node == "off"
 
