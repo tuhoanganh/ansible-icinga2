@@ -1,0 +1,131 @@
+---
+# defaults file for icinga2-ansible-no-ui
+
+icinga2_key: "https://packages.icinga.org/icinga.key"
+icinga2_debmon_key: "https://debmon.org/debmon/repo.key"
+
+icinga2_deb_repos:
+ - { repo: "deb https://packages.icinga.org/{{ ansible_distribution|lower }} icinga-{{ ansible_distribution_release }} main" }
+ - { repo: "deb-src https://packages.icinga.org/{{ ansible_distribution|lower }} icinga-{{ ansible_distribution_release }} main" }
+icinga2_debmon_repo: "deb http://debmon.org/debmon debmon-{{ ansible_distribution_release }} main"
+
+icinga2_pkg:
+ - { package: "icinga2" }
+ - { package: "nagios-plugins" }
+ - { package: "bsd-mailx" }
+
+icinga2_url_yum: "https://packages.icinga.org/epel/ICINGA-release.repo"
+icinga2_url_yum_fedora: "https://packages.icinga.org/fedora/ICINGA-release.repo"
+icinga2_repo_yum: "/etc/yum.repos.d/ICINGA-release.repo"
+
+icinga2_yum:
+ - { package: "icinga2" }
+ - { package: "icinga2-selinux" }
+ - { package: "nagios-plugins-all" }
+ - { package: "mailx" }
+
+icinga2_main_conf: "/etc/icinga2/icinga2.conf"
+icinga2_conf_d: "/etc/icinga2/conf.d"
+
+icinga2_dependencies_additional_os_tools:
+ - { package: "yum-utils" }
+ - { package: "bash-completion" }
+ - { package: "bind-utils" }
+ - { package: "net-tools" }
+ - { package: "telnet" }
+ - { package: "mailx" }
+ - { package: "rsync" }
+ - { package: "perl" }
+ - { package: "setools-libs" }
+ - { package: "libcgroup" }
+ - { package: "expect " }
+ - { package: "tmux" }
+
+icinga2_dependencies_snmp_utilities:
+ - { package: "net-snmp" }
+ - { package: "net-snmp-utils" }
+ - { package: "net-snmp-devel" }
+ - { package: "net-snmp-perl" }
+ - { package: "snmpcheck" }
+ - { package: "snmptt" }
+
+icinga2_dependencies_perl_and_python_module:
+ - { package: "perl-Net-SNMP" }
+ - { package: "perl-Config-IniFiles" }
+ - { package: "perl-Sys-Syslog" }
+ - { package: "python-pip" }
+ - { package: "python-devel" }
+ - { package: "python-requests" }
+ - { package: "pysnmp" }
+ - { package: "audit-libs-python" }
+ - { package: "python-IPy" }
+ - { package: "libsemanage-python" }
+ - { package: "policycoreutils-python" }
+ - { package: "checkpolicy" }
+ - { package: "readline-devel" }
+
+icinga2_dependencies_mariadb:
+ - { package: "mariadb-libs" }
+ - { package: "mariadb-devel" }
+
+icinga2_dependencies_juniper_pyez:
+ - { package: "libxml2-devel" }
+ - { package: "libxslt-devel" }
+ - { package: "libffi-devel" }
+
+icinga2_dependencies_nfs_daemon_and_utilities:
+ - { package: "nfs-utils" }
+
+icinga2_dependencies_package_downloader:
+ - { package: "curl" }
+ - { package: "wget" }
+
+icinga2_dependencies_other_development_packages:
+ - { package: "zlib-devel" }
+ - { package: "bzip2-devel" }
+ - { package: "openssl-devel" }
+ - { package: "ncurses-devel" }
+ - { package: "sqlite-devel" }
+ - { package: "gcc" }
+ - { package: "make" }
+ - { package: "git" }
+ - { package: "autoconf" }
+ - { package: "autogen" }
+ - { package: "pkgconfig" }
+ - { package: "libuuid-devel" }
+
+icinga2_dependencies_php:
+ - { package: "php" }
+ - { package: "php-cli" }
+ - { package: "php-pear" }
+ - { package: "php-xmlrpc " }
+ - { package: "php-xsl" }
+ - { package: "php-pdo" }
+ - { package: "php-soap" }
+ - { package: "php-gd" }
+ - { package: "php-ldap" }
+ - { package: "php-mbstring" }
+ - { package: "graphviz" }
+
+icinga2_dependencies_performance_data:
+ - { package: "perl-Time-HiRes" }
+ - { package: "rrdtool-perl" }
+
+icinga2_dependencies_postfix_relay:
+ - { package: "cyrus-sasl" }
+ - { package: "cyrus-sasl-lib" }
+ - { package: "cyrus-sasl-plain" }
+
+icinga2_depencies_development_tools_groups:
+ - { package: "@Development Tools" }
+
+ui_node: "on"
+
+backend_name_1: "ICINGA-CORE1"
+backend_name_2: "ICINGA-CORE2"
+
+
+
+
+
+
