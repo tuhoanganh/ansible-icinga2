@@ -1,0 +1,7 @@
+#Variables for Node's IP
+ipv4: 192.168.100.11
+
+#Variables for configure NFS
+normal_node_name: ICINGA-CORE1
+normal_node_ip: 192.168.100.11
+thruk_id: 3bfa1
