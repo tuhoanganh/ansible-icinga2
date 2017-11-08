@@ -21,6 +21,7 @@
       insertbefore: '-A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT'
       line: '{{ item }}'
       state: present
+      backup: yes
     with_items:
       - '# SSH #'
 
@@ -38,7 +39,7 @@
   - name: IPTABLES [Step 05] - Add Web Port to Firewall (Only on UI Node)
     lineinfile:
       dest: /etc/sysconfig/iptables
-      insertafter: '-A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT'
+      insertbefore: '# ICINGA2 #'
       line: '{{ item }}'
       state: present
     with_items:
@@ -50,7 +51,7 @@
   - name: IPTABLES [Step 06] - Add NFS Port to Firewall (Only on UI Node)
     lineinfile:
       dest: /etc/sysconfig/iptables
-      insertafter: '-A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT'
+      insertbefore: '# ICINGA2 #'
       line: '{{ item }}'
       state: present
     with_items:
@@ -59,6 +60,18 @@
       - '-A INPUT -p udp -m state --state NEW -m udp --dport 2049 -j ACCEPT'
       - '-A INPUT -p tcp -m state --state NEW -m tcp --dport 111 -j ACCEPT'
       - '-A INPUT -p udp -m state --state NEW -m udp --dport 111 -j ACCEPT'
+    when: 
+      - ui_node == "on"
+
+  - name: IPTABLES [Step 06] - Add NFS Port to Firewall (Only on UI Node)
+    lineinfile:
+      dest: /etc/sysconfig/iptables
+      insertbefore: '# ICINGA2 #'
+      line: '{{ item }}'
+      state: present
+    with_items:
+      - '# ICINGA2-UI #'
+      - '-A INPUT -p udp -m state --state NEW -m udp --dport 8080 -j ACCEPT'
     when: 
       - ui_node == "on"
     notify:

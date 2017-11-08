@@ -14,14 +14,16 @@
     </options>
   </peer>
 
+{% for host in groups['normal_node'] %}
   <peer>
-    name    	= {{ hostvars[inventory_hostname].normal_node_name }}
-    id      	= 3bfa0
+    name    	= {{ hostvars[host].normal_node_name }}
+    id      	= {{ hostvars[host].thruk_id }}
     type    	= livestatus
     <options>
-       peer 	= {{ hostvars[inventory_hostname].normal_node_ip }}:6558
+       peer 	= {{ hostvars[host].normal_node_ip }}:6558
     </options>
   </peer>
+{% endfor %}
 </Component>
 
 <configtool>

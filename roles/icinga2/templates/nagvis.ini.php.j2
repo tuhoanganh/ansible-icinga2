@@ -220,7 +220,10 @@ htmlcgi="/thruk/cgi-bin"
 ; Default values which get inherited to the maps and its objects
 [defaults]
 backend={{ hostvars[inventory_hostname].ui_node_name }}
-backend={{ hostvars[inventory_hostname].normal_node_name }}
+{% for host in groups['normal_node'] %}
+backend={{ hostvars[host].normal_node_name }}
+{% endfor %}
+
 
 ; default backend (id of the default backend)
 ;backend="live_1"
@@ -446,9 +449,11 @@ backendtype="ndomy"
 backendtype="mklivestatus"
 socket="unix:/var/run/icinga2/cmd/livestatus"
 
-[backend_{{ hostvars[inventory_hostname].normal_node_name }}]
+{% for host in groups['normal_node'] %}
+[backend_{{ hostvars[host].normal_node_name }}]
 backendtype="mklivestatus"
-socket="tcp:{{ hostvars[inventory_hostname].normal_node_ip }}:6558"
+socket="tcp:{{ hostvars[host].ipv4 }}:6558"
+{% endfor %}
 
 ; ----------------------------
 ; Rotation pool definitions

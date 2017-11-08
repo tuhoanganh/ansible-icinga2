@@ -1,5 +1,5 @@
 ---
-- hosts: icinga-devops-01 icinga-devops-02
+- hosts: all
   roles:
    - role: environment
      become: yes

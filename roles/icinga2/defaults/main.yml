@@ -22,7 +22,6 @@ icinga2_yum:
  - { package: "icinga2" }
  - { package: "icinga2-selinux" }
  - { package: "nagios-plugins-all" }
- - { package: "mailx" }
 
 icinga2_main_conf: "/etc/icinga2/icinga2.conf"
 icinga2_conf_d: "/etc/icinga2/conf.d"
