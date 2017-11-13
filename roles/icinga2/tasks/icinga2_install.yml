@@ -210,11 +210,20 @@
 
   - name: INITIAL CONFIGURATION - THRUK [Step 26] - Configure Thruk (Only on UI Node)
     template:
-      src: "{{ role_path }}/templates/thruk_local.conf.j2"
+      src: "{{ role_path }}/templates/standalone_thruk_local.conf.j2"
       dest: "/etc/thruk/thruk_local.conf"
       backup: yes
     when: 
       - ui_node == "on"
+
+  - name: INITIAL CONFIGURATION - THRUK [Step 26] - Configure Thruk (Only on UI Node)
+    template:
+      src: "{{ role_path }}/templates/full_thruk_local.conf.j2"
+      dest: "/etc/thruk/thruk_local.conf"
+      backup: yes
+    when: 
+      - ui_node == "on"
+      - standalone == "off"
 
   - name: INITIAL CONFIGURATION - HTTP [STEP 27] - Start Apache (Only on UI Node)
     service: name=httpd
@@ -309,11 +318,20 @@
 
   - name: INITIAL CONFIGURATION - NAGVIS [STEP 36] - Config nagvis.ini.php file (Only on UI Node)
     template:
-      src: "{{ role_path }}/templates/nagvis.ini.php.j2"
+      src: "{{ role_path }}/templates/full_nagvis.ini.php.j2"
       dest: "/usr/share/nagvis/etc/nagvis.ini.php"
       backup: yes
     when: 
       - ui_node == "on"
+
+  - name: INITIAL CONFIGURATION - NAGVIS [STEP 36] - Config nagvis.ini.php file (Only on UI Node)
+    template:
+      src: "{{ role_path }}/templates/standalone_nagvis.ini.php.j2"
+      dest: "/usr/share/nagvis/etc/nagvis.ini.php"
+      backup: yes
+    when: 
+      - ui_node == "on"
+      - standalone == "off"
 
   - name: INITIAL CONFIGURATION - NAGVIS [STEP 37] - Config Nagvis's virtualhost file (Only on UI Node)
     lineinfile:
@@ -438,6 +456,8 @@
       regexp: '^#Domain = local.domain.edu'
       replace: Domain = "{{ hostvars[inventory_hostname].ansible_hostname }}"
       backup: yes
+    when: 
+      - standalone == "off"
 
   - name: INITIAL CONFIGURATION - NFS [Step 52] - Configure NFS's Path (Only on UI Node)
     template:
@@ -445,12 +465,15 @@
       dest: "/etc/exports"
     when: 
       - ui_node == "on"
+      - standalone == "off"
 
   - name: INITIAL CONFIGURATION - NFS [STEP 53] - Start and Enable rpcbind
     service: 
       name: rpcbind
       state: restarted
       enabled: yes
+    when: 
+      - standalone == "off"
 
   - name: INITIAL CONFIGURATION - NFS [STEP 54] - Start and Enable nfs-server (Only on UI Node)
     service: 
@@ -459,6 +482,7 @@
       enabled: yes
     when: 
       - ui_node == "on"
+      - standalone == "off"
 
   - name: INITIAL CONFIGURATION - NFS [STEP 55] - Config Mounting (Only on Normal Node)
     lineinfile:
@@ -468,8 +492,10 @@
       backup: yes
     when:
       - ui_node == "off"
+      - standalone == "off"
 
   - name: INITIAL INSTALLATION - NFS [STEP 55] - Mount NFS's Directory
     command: mount -a
     when:
       - ui_node == "off"
+      - standalone == "off"

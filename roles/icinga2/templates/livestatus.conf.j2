@@ -17,7 +17,3 @@ object LivestatusListener "livestatus-tcp-remote" {
   bind_host = "{{ hostvars[inventory_hostname].ipv4 }}"
   bind_port = "6558"
 }
-object LivestatusListener "livestatus-unix" {
-  socket_type = "unix"
-  socket_path = "/var/run/icinga2/cmd/livestatus"
-}

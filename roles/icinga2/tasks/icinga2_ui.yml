@@ -73,9 +73,17 @@
   - name: ICINGA2-UI [Step 06] - Create Icinga2-ui's Node configure (Only on UI Node)
     shell: cp -rf /etc/icinga2-ui/demo_config /etc/icinga2-ui/{{ item }}
     with_items:
+      - "{{ ui_node_ip }}"
+    when: 
+      - ui_node == "on"
+
+  - name: ICINGA2-UI [Step 06] - Create Icinga2-ui's Node configure (Only on UI Node)
+    shell: cp -rf /etc/icinga2-ui/demo_config /etc/icinga2-ui/{{ item }}
+    with_items:
       - "{{ all_node_ip }}"
     when: 
       - ui_node == "on"
+      - standalone == "off"
 
   - name: ICINGA2-UI [Step 07] - Reload Systemctl
     command: systemctl daemon-reload
@@ -92,6 +100,15 @@
   - name: ICINGA2-UI [Step 09] - Add Known_hosts (Only on UI Node)
     shell: ssh-keyscan -H {{ item }} > /etc/ssh/ssh_known_hosts
     with_items:
+      - "{{ ui_node_ip }}"
+    when: 
+      - ui_node == "on"
+
+  - name: ICINGA2-UI [Step 09] - Add Known_hosts (Only on UI Node)
+    shell: ssh-keyscan -H {{ item }} > /etc/ssh/ssh_known_hosts
+    with_items:
       - "{{ all_node_ip }}"
     when: 
       - ui_node == "on"
+      - standalone == "off"
+

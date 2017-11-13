@@ -1,10 +1,10 @@
 ---
 # tasks file for icinga2
-- include: icinga2_iptables.yml
+#- include: icinga2_iptables.yml
 
-- include: icinga2_required_repo.yml
+#- include: icinga2_required_repo.yml
 
-- include: icinga2_dependencies.yml
+#- include: icinga2_dependencies.yml
 
 - include: icinga2_install.yml
 
