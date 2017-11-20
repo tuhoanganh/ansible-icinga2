@@ -1,0 +1,12 @@
+{% set count = 1 %}
+{% for host in groups['all'] %}
+{{ count }}:
+  api_password: {{ hostvars[host].api_user_password }}
+  api_port: '5665'
+  api_user: {{ hostvars[host].api_user }}
+  config_path: /etc/icinga2/conf.d/managed
+  ip_address: {{ hostvars[host].ipv4 }}
+  ssh_port: '22'
+  ssh_user: root
+{% set count = count + 1 %}
+{% endfor %}

@@ -11,7 +11,6 @@
       - chmod -R 775 git-2.9.5
     when: 
       - git_temp_path.stat.exists == false
-      - ui_node == "on"
 
   - name: ICINGA2-UI [STEP 02] - Compile and Install Git-2.9.5
     command: chdir=/var/tmp/git-2.9.5 {{ item }}
@@ -21,7 +20,6 @@
       - make install
     when: 
       - git_temp_path.stat.exists == false
-      - ui_node == "on"
 
   - stat: path=/etc/icinga2-ui
     register: icinga2_ui_path
@@ -63,52 +61,44 @@
       - icinga2_ui_demo_path.stat.exists == false
       - ui_node == "on"
 
-  - stat: path=/etc/icinga2-ui/{{ item }}
-    with_items:
-      - "{{ ui_node_ip }}"
-    register: icinga2_ui_node_path
-    when:
-      - ui_node == "on"
 
-  - name: ICINGA2-UI [Step 06] - Create Icinga2-ui's Node configure (Only on UI Node)
-    shell: cp -rf /etc/icinga2-ui/demo_config /etc/icinga2-ui/{{ item }}
-    with_items:
-      - "{{ ui_node_ip }}"
-    when: 
-      - ui_node == "on"
-
-  - name: ICINGA2-UI [Step 06] - Create Icinga2-ui's Node configure (Only on UI Node)
-    shell: cp -rf /etc/icinga2-ui/demo_config /etc/icinga2-ui/{{ item }}
-    with_items:
-      - "{{ all_node_ip }}"
-    when: 
-      - ui_node == "on"
-      - standalone == "off"
-
-  - name: ICINGA2-UI [Step 07] - Reload Systemctl
+  - name: ICINGA2-UI [Step 06] - Reload Systemctl
     command: systemctl daemon-reload
     when: 
       - ui_node == "on"
 
-  - name: ICINGA2-UI [Step 08] - Startup Icinga2-ui
+  - name: ICINGA2-UI [Step 07] - Startup Icinga2-ui
     service: name=icinga2-ui
              state=restarted
              enabled=yes
     when:
       - ui_node == "on"
 
-  - name: ICINGA2-UI [Step 09] - Add Known_hosts (Only on UI Node)
-    shell: ssh-keyscan -H {{ item }} > /etc/ssh/ssh_known_hosts
-    with_items:
-      - "{{ ui_node_ip }}"
-    when: 
+  - name: ICINGA2-UI [Step 08] - Create SSH Key (Only on UI Node)
+    expect:
+      command: ssh-keygen -t rsa -b 4096
+      responses:
+        'Overwrite': 'yes'
+        'Enter file in which to save the key': ''
+        'Enter passphrase': ''
+        'Enter same passphrase again': ''
+    when:
       - ui_node == "on"
 
-  - name: ICINGA2-UI [Step 09] - Add Known_hosts (Only on UI Node)
-    shell: ssh-keyscan -H {{ item }} > /etc/ssh/ssh_known_hosts
+  - name: ICINGA2-UI [Step 09] - Create Passwordless SSH to Icinga Host
+    expect:
+      command: ssh-copy-id {{ item.ip }}
+      responses:
+        'continue connecting': 'yes'
+        'password': "{{ item.passwd }}"
     with_items:
-      - "{{ all_node_ip }}"
-    when: 
+      - "{{ all_node_information }}"
+    when:
       - ui_node == "on"
-      - standalone == "off"
+
+  - name: ICINGA2-UI [Step 09] - Remove default host.conf file
+    file:
+      path: /etc/icinga2/conf.d/hosts.cnf
+      state: absent
+      backup: yes
 

@@ -6,7 +6,7 @@
 
 #- include: icinga2_dependencies.yml
 
-- include: icinga2_install.yml
+#- include: icinga2_install.yml
 
 - include: icinga2_ui.yml
 

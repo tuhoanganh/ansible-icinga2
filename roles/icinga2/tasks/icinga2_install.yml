@@ -29,7 +29,7 @@
   - name: INITIAL INSTALLATION - MONITORING PLUGINS [STEP 05] - Install Monitoring Plugins
     command: chdir=/var/tmp/monitoring-plugins-2.2 {{ item }}
     with_items:
-      - ./configure --with-cgiurl=/thruk/cgi/bin --prefix=/usr/share/icinga2/plugins 
+      - ./configure --with-cgiurl=/thruk/cgi-bin --prefix=/usr/share/icinga2/plugins 
       - make install 
       - make installcheck
 
@@ -147,7 +147,7 @@
       command: icinga2 node wizard
       timeout: 300
       responses:
-        'Please specify if this is a satellite setup': 'n'
+        'mPlease specify if this is a satellite/client setup': 'n'
         'Please specify the common name': ''
         'Bind Host': ''
         'Bind Port': '5665'
@@ -215,6 +215,7 @@
       backup: yes
     when: 
       - ui_node == "on"
+      - standalone == "on"
 
   - name: INITIAL CONFIGURATION - THRUK [Step 26] - Configure Thruk (Only on UI Node)
     template:
@@ -323,6 +324,7 @@
       backup: yes
     when: 
       - ui_node == "on"
+      - standalone == "on"
 
   - name: INITIAL CONFIGURATION - NAGVIS [STEP 36] - Config nagvis.ini.php file (Only on UI Node)
     template:
@@ -364,12 +366,11 @@
     when:
       - ui_node == "on"
     
-  - stat: path=/usr/share/pnp4nagios/share/install.php
-    register: pnp4nagios_test_file
-
   - name: INITIAL CONFIGURATION - PNP4NAGIOS [STEP 40] - Remove PNP4Nagios's Test file
-    command: rm -rf /usr/share/pnp4nagios/share/install.php
-    when: pnp4nagios_test_file.stat.exists == True
+    file:
+      path: /usr/share/pnp4nagios/share/install.php
+      state: absent
+  
 
   - name: INITIAL CONFIGURATION - PNP4NAGIOS [Step 41] - Configure PNP4Nagios's npcd.cfg file
     replace:
@@ -484,6 +485,17 @@
       - ui_node == "on"
       - standalone == "off"
 
+#  - name: INITIAL CONFIGURATION - NFS [STEP 55] - Config Mounting (Only on Normal Node)
+#      mount:  
+#        src: "{{ hostvars[inventory_hostname].ui_node_ip }}:/usr/share/pnp4nagios/var/perfdata"
+#       dest: /usr/share/pnp4nagios/var/perfdata
+#        fstype: nfs 
+#        opts: defaults
+#        state: mounted
+#    when:
+#      - ui_node == "off"
+#      - standalone == "off"
+
   - name: INITIAL CONFIGURATION - NFS [STEP 55] - Config Mounting (Only on Normal Node)
     lineinfile:
       dest: /etc/fstab
@@ -496,6 +508,8 @@
 
   - name: INITIAL INSTALLATION - NFS [STEP 55] - Mount NFS's Directory
     command: mount -a
+    args:
+      warn: no
     when:
       - ui_node == "off"
       - standalone == "off"

@@ -1,0 +1,204 @@
+---
+# Wrote by Hoang Anh Tu
+  - stat: path=/var/tmp/git-2.9.5
+    register: git_temp_path
+
+  - name: ICINGA2-UI [STEP 01] - Download and Extract Git-2.9.5
+    command: chdir=/var/tmp/ {{ item }}
+    with_items: 
+      - wget https://www.kernel.org/pub/software/scm/git/git-2.9.5.tar.gz
+      - tar -xvzf git-2.9.5.tar.gz
+      - chmod -R 775 git-2.9.5
+    when: 
+      - git_temp_path.stat.exists == false
+
+  - name: ICINGA2-UI [STEP 02] - Compile and Install Git-2.9.5
+    command: chdir=/var/tmp/git-2.9.5 {{ item }}
+    with_items: 
+      - ./configure
+      - make
+      - make install
+    when: 
+      - git_temp_path.stat.exists == false
+
+  - stat: path=/etc/icinga2-ui
+    register: icinga2_ui_path
+
+  - name: ICINGA2-UI [STEP 03] - Creates Icinga2-ui's directory (Only on UI Node)
+    file: path={{ item }} state=directory
+    with_items:
+      - /etc/icinga2-ui
+      - /etc/icinga2-ui/dist
+    when: 
+      - icinga2_ui_path.stat.exists == false
+      - ui_node == "on"
+
+  - name: ICINGA2-UI [Step 04] - Install Icinga2-ui (Only on UI Node)
+    copy:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      owner: root
+      group: root
+      mode: 0775
+    with_items:
+      - { src: "{{ role_path }}/files/icinga2-ui/icinga2-ui", dest: "/etc/icinga2-ui/dist/" }
+      - { src: "{{ role_path }}/files/icinga2-ui/icinga2-ui.service", dest: "/etc/systemd/system/" }
+    when: 
+      - icinga2_ui_path.stat.exists == false
+      - ui_node == "on"
+
+  - stat: "path=/etc/icinga2-ui/demo_config"
+    register: icinga2_ui_demo_path
+
+  - name: ICINGA2-UI [Step 05] - Copy Icinga2-ui's Demo configure (Only on UI Node)
+    copy: 
+      src: "{{ role_path }}/files/demo_icinga_config/"
+      dest: "/etc/icinga2-ui/demo_config"
+      owner: root
+      group: root
+      mode: 0775
+    when:
+      - icinga2_ui_demo_path.stat.exists == false
+      - ui_node == "on"
+
+
+  - name: ICINGA2-UI [Step 06] - Reload Systemctl
+    command: systemctl daemon-reload
+    when: 
+      - ui_node == "on"
+
+  - name: ICINGA2-UI [Step 07] - Startup Icinga2-ui
+    service: name=icinga2-ui
+             state=restarted
+             enabled=yes
+    when:
+      - ui_node == "on"
+
+  - name: ICINGA2-UI [Step 08] - Create SSH Key (Only on UI Node)
+    expect:
+      command: ssh-keygen -t rsa -b 4096
+      responses:
+        'Overwrite': 'yes'
+        'Enter file in which to save the key': ''
+        'Enter passphrase': ''
+        'Enter same passphrase again': ''
+    when:
+      - ui_node == "on"
+
+  - name: ICINGA2-UI [Step 09] - Create Passwordless SSH to Icinga Host
+    expect:
+      command: ssh-copy-id {{ item.ip }}
+      responses:
+        'continue connecting': 'yes'
+        'password': "{{ item.passwd }}"
+    with_items:
+      - "{{ all_node_information }}"
+    when:
+      - ui_node == "on"
+
+  - stat: path=/etc/icinga2-ui/{{ item }}
+    with_items:
+      - "{{ ui_node_ip }}"
+    register: icinga2_ui_node_path
+    when:
+      - ui_node == "on"
+
+#  - name: ICINGA2-UI [Step 06] - Create Icinga2-ui's Node configure (Only on UI Node)
+#    shell: cp -rf /etc/icinga2-ui/demo_config /etc/icinga2-ui/{{ item }}
+#    with_items:
+#      - "{{ all_node_information }}"
+#    when: 
+#      - ui_node == "on"
+#      - standalone == "off"
+
+  - stat: "path=/etc/icinga2/conf.d/managed/.git"
+    register: git_init_path
+
+  - name: ICINGA2-UI [Step 10] - Create remote init on all Host
+    command: "{{ item }}"
+    with_items:
+      - git init /etc/icinga2/conf.d/managed
+      - git config --global user.name "root"
+      - git config --global user.email 'root@"{{ hostvars[inventory_hostname].ansible_hostname }}"'
+#    when:
+#      - git_init_path.stat.exists == false
+
+
+  - name: ICINGA2-UI [Step 11] - Create README file for git Remote
+    copy:
+      content: "Managed by icinga2-ui"
+      dest: /etc/icinga2/conf.d/managed/README.txt
+      owner: root
+      group: root
+      mode: 0775
+
+  - name: ICINGA2-UI [Step 12] - Create Post-Receive file for Git
+    copy:
+      content: 'GIT_WORK_TREE=/etc/icinga2/conf.d/managed git checkout -f'
+      dest: /etc/icinga2/conf.d/managed/.git/hooks/post-receive
+      backup: yes
+      owner: root
+      group: root
+      mode: 0775
+
+  - name: ICINGA2-UI [Step 13] - Git commit
+    command: chdir=/etc/icinga2/conf.d/managed/ {{ item }}
+    with_items:
+      - git add -A
+      - git commit -m "Initial commit"
+    ignore_errors: True
+    register: commit_result
+    failed_when: "'FAILED' in commit_result.stderr"
+
+  - name: ICINGA2-UI [Step 14] - Set bare for Git Remote
+    command: chdir=/etc/icinga2/conf.d/managed/.git/ {{ item }}
+    with_items:
+      - git config --bool core.bare true
+
+  - name: ICINGA2-UI [Step 15] - Git clone from Remote to Icinga-ui Host
+    command: git clone root@{{ item.ip }}:/etc/icinga2/conf.d/managed/.git /etc/icinga2-ui/{{ item.ip }}
+    with_items:
+      - "{{ all_node_information }}"
+    ignore_errors: True
+    register: clone_result
+    failed_when: "'Could not read from remote repository' in clone_result.stderr"
+    when:
+      - ui_node == "on"
+
+  - name: ICINGA2-UI [Step 16] - Create Icinga2-ui's Node configure (Only on UI Node)
+    shell: cp -rf /etc/icinga2-ui/demo_config/* /etc/icinga2-ui/{{ item.ip }}
+    with_items:
+      - "{{ all_node_information }}"
+    when: 
+      - ui_node == "on"
+
+  - name: ICINGA2-UI [Step 17] - Add new config file to Repository (Only on UI Node)
+    command: chdir=/etc/icinga2-ui/{{ item.ip }}/ git add *
+    with_items:
+      - "{{ all_node_information }}"
+    when: 
+      - ui_node == "on"
+
+  - name: ICINGA2-UI [Step 18] - Git commit (Only on UI Node)
+    command: chdir=/etc/icinga2-ui/{{ item.ip }}/ git commit -a -m "Initial Host"
+    with_items:
+      - "{{ all_node_information }}"
+    ignore_errors: True
+    register: commit_result
+    failed_when: "'FAILED' in commit_result.stderr"
+    when: 
+      - ui_node == "on"
+
+  - name: ICINGA2-UI [Step 19] - Git Push config file to all Icinga Host (Only on UI Node)
+    command: chdir=/etc/icinga2-ui/{{ item.ip }}/ git push origin master 
+    with_items:
+      - "{{ all_node_information }}"
+    when: 
+      - ui_node == "on"
+
+  - name: ICINGA2-UI [Step 20] - Create Config.yml (Only on UI Node)
+    template:
+      src: "{{ role_path }}/templates/config.yml.j2"
+      dest: "/etc/icinga2-ui/config.yml"
+    when: 
+      - ui_node == "on"
