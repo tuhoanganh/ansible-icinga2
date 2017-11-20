@@ -12,6 +12,7 @@
        include <plugins>
        include "features-enabled/*.conf"
        include_recursive "conf.d"
+     gather_facts: yes
      check_commands:
        check_nrpe: |
           "-H", "$address$",

@@ -208,7 +208,7 @@
     when: 
       - ui_node == "on"
 
-  - name: INITIAL CONFIGURATION - THRUK [Step 26] - Configure Thruk (Only on UI Node)
+  - name: INITIAL CONFIGURATION - STANDALONE - THRUK [Step 26] - Configure Thruk (Only on UI Node)
     template:
       src: "{{ role_path }}/templates/standalone_thruk_local.conf.j2"
       dest: "/etc/thruk/thruk_local.conf"
@@ -217,7 +217,7 @@
       - ui_node == "on"
       - standalone == "on"
 
-  - name: INITIAL CONFIGURATION - THRUK [Step 26] - Configure Thruk (Only on UI Node)
+  - name: INITIAL CONFIGURATION - FULL - THRUK [Step 26] - Configure Thruk (Only on UI Node)
     template:
       src: "{{ role_path }}/templates/full_thruk_local.conf.j2"
       dest: "/etc/thruk/thruk_local.conf"
@@ -317,23 +317,23 @@
 #    when: 
 #      - ui_node == "on"
 
-  - name: INITIAL CONFIGURATION - NAGVIS [STEP 36] - Config nagvis.ini.php file (Only on UI Node)
+  - name: INITIAL CONFIGURATION - FULL - NAGVIS [STEP 36] - Config nagvis.ini.php file (Only on UI Node)
     template:
       src: "{{ role_path }}/templates/full_nagvis.ini.php.j2"
       dest: "/usr/share/nagvis/etc/nagvis.ini.php"
       backup: yes
     when: 
       - ui_node == "on"
-      - standalone == "on"
+      - standalone == "off"
 
-  - name: INITIAL CONFIGURATION - NAGVIS [STEP 36] - Config nagvis.ini.php file (Only on UI Node)
+  - name: INITIAL CONFIGURATION - STANDALONE - NAGVIS [STEP 36] - Config nagvis.ini.php file (Only on UI Node - Standalone)
     template:
       src: "{{ role_path }}/templates/standalone_nagvis.ini.php.j2"
       dest: "/usr/share/nagvis/etc/nagvis.ini.php"
       backup: yes
     when: 
       - ui_node == "on"
-      - standalone == "off"
+      - standalone == "on"
 
   - name: INITIAL CONFIGURATION - NAGVIS [STEP 37] - Config Nagvis's virtualhost file (Only on UI Node)
     lineinfile:
@@ -451,7 +451,7 @@
     when: 
       - ui_node == "on"
 
-  - name: INITIAL CONFIGURATION - NFS [Step 51] - Configure idmapd.conf for NFS 
+  - name: INITIAL CONFIGURATION - FULL - NFS [Step 51] - Configure idmapd.conf for NFS 
     replace:
       dest: /etc/idmapd.conf
       regexp: '^#Domain = local.domain.edu'
@@ -460,7 +460,7 @@
     when: 
       - standalone == "off"
 
-  - name: INITIAL CONFIGURATION - NFS [Step 52] - Configure NFS's Path (Only on UI Node)
+  - name: INITIAL CONFIGURATION - FULL - NFS [Step 52] - Configure NFS's Path (Only on UI Node)
     template:
       src: "{{ role_path }}/templates/exports.j2"
       dest: "/etc/exports"
@@ -468,7 +468,7 @@
       - ui_node == "on"
       - standalone == "off"
 
-  - name: INITIAL CONFIGURATION - NFS [STEP 53] - Start and Enable rpcbind
+  - name: INITIAL CONFIGURATION - FULL - NFS [STEP 53] - Start and Enable rpcbind
     service: 
       name: rpcbind
       state: restarted
@@ -476,7 +476,7 @@
     when: 
       - standalone == "off"
 
-  - name: INITIAL CONFIGURATION - NFS [STEP 54] - Start and Enable nfs-server (Only on UI Node)
+  - name: INITIAL CONFIGURATION - FULL - NFS [STEP 54] - Start and Enable nfs-server (Only on UI Node)
     service: 
       name: nfs-server
       state: restarted
@@ -496,7 +496,7 @@
 #      - ui_node == "off"
 #      - standalone == "off"
 
-  - name: INITIAL CONFIGURATION - NFS [STEP 55] - Config Mounting (Only on Normal Node)
+  - name: INITIAL CONFIGURATION - FULL - NFS [STEP 55] - Config Mounting (Only on Normal Node)
     lineinfile:
       dest: /etc/fstab
       line: "{{ hostvars[inventory_hostname].ui_node_ip }}:/usr/share/pnp4nagios/var/perfdata /usr/share/pnp4nagios/var/perfdata  nfs  defaults  0 0"
@@ -506,7 +506,7 @@
       - ui_node == "off"
       - standalone == "off"
 
-  - name: INITIAL INSTALLATION - NFS [STEP 55] - Mount NFS's Directory
+  - name: INITIAL INSTALLATION - FULL - NFS [STEP 55] - Mount NFS's Directory
     command: mount -a
     args:
       warn: no

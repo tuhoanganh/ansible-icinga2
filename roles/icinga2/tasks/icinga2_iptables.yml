@@ -63,7 +63,7 @@
     when: 
       - ui_node == "on"
 
-  - name: IPTABLES [Step 06] - Add NFS Port to Firewall (Only on UI Node)
+  - name: IPTABLES [Step 07] - Add Icinga2-ui Port to Firewall (Only on UI Node)
     lineinfile:
       dest: /etc/sysconfig/iptables
       insertbefore: '# ICINGA2 #'

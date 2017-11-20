@@ -85,7 +85,18 @@
     when:
       - ui_node == "on"
 
-  - name: ICINGA2-UI [Step 09] - Create Passwordless SSH to Icinga Host
+  - name: ICINGA2-UI - FULL - [Step 09] - Create Passwordless SSH to Icinga Host
+    expect:
+      command: ssh-copy-id {{ item.ip }}
+      responses:
+        'continue connecting': 'yes'
+        'password': "{{ item.passwd }}"
+    with_items:
+      - "{{ all_node_information }}"
+    when:
+      - ui_node == "on"
+
+  - name: ICINGA2-UI - STANDALONE - [Step 09] - Create Passwordless SSH to Icinga Host
     expect:
       command: ssh-copy-id {{ item.ip }}
       responses:
