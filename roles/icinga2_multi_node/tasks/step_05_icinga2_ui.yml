@@ -96,9 +96,9 @@
     when:
       - ui_node == "on"
 
-  - name: ICINGA2-UI [Step 10] - Remove default host.conf file
-    file:
-      path: /etc/icinga2/conf.d/hosts.cnf
-      state: absent
-      backup: yes
+#  - name: ICINGA2-UI [Step 10] - Remove default host.conf file
+#    file:
+#      path: /etc/icinga2/conf.d/hosts.cnf
+#      state: absent
+#      backup: yes
 
