@@ -1,7 +1,7 @@
 ---
 # tasks file for icinga2
-- include: step_01_icinga2_iptables.yml
-- include: step_02_icinga2_required_repo.yml
-- include: step_03_icinga2_dependencies.yml
-- include: step_04_icinga2_install.yml
-- include: step_05_icinga2_ui.yml
+- include_tasks: step_01_icinga2_iptables.yml
+- include_tasks: step_02_icinga2_required_repo.yml
+- include_tasks: step_03_icinga2_dependencies.yml
+- include_tasks: step_04_icinga2_install.yml
+- include_tasks: step_05_icinga2_ui.yml
