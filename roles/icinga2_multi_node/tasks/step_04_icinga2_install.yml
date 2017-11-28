@@ -351,7 +351,6 @@
       path: /usr/share/pnp4nagios/share/install.php
       state: absent
   
-
   - name: INITIAL CONFIGURATION - PNP4NAGIOS [Step 41] - Configure PNP4Nagios's npcd.cfg file
     replace:
       dest: /usr/share/pnp4nagios/etc/npcd.cfg
@@ -360,7 +359,8 @@
       backup: yes
 
   - name: INITIAL CONFIGURATION - NPCD [STEP 42] - Restart npcd
-    service: name=npcd
+    service: daemon_reload=yes
+             name=npcd
              state=restarted
              enabled=yes
 
