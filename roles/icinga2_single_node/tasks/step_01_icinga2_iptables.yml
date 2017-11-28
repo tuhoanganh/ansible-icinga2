@@ -43,6 +43,6 @@
       state: present
     with_items:
       - '# ICINGA2-UI #'
-      - '-A INPUT -p udp -m state --state NEW -m udp --dport 8080 -j ACCEPT'
+      - '-A INPUT -p tcp -m state --state NEW -m tcp --dport 8080 -j ACCEPT'
     notify:
       - Restart Iptables

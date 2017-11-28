@@ -306,9 +306,7 @@
   - name: INITIAL CONFIGURATION - NPCD [STEP 40] - Restart npcd
     service: name=npcd
              state=restarted
-             enabled=yes  
-    args:
-      warn: false
+             enabled=yes
 
   - name: INITIAL CONFIGURATION - PNP4NAGIOS [STEP 41] - Copy status-header.ssi to Thruk directory
     copy:
