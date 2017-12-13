@@ -96,6 +96,14 @@
     when:
       - ui_node == "on"
 
+#  - name: ICINGA2-UI - [STEP 10] - Create Git account's default identity
+#    command: '{{ item }}'
+#    with_items:
+#      - 'git config --global user.email root@{{ IP }}'
+#      - git config --global user.name root
+#    when:
+#      - ui_node == "on"
+
 #  - name: ICINGA2-UI [Step 10] - Remove default host.conf file
 #    file:
 #      path: /etc/icinga2/conf.d/hosts.cnf
