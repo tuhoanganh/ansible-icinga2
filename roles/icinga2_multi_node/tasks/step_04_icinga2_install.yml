@@ -470,7 +470,7 @@
     when:
       - ui_node == "off"
 
-  - name: INITIAL INSTALLATION - NFS [STEP 55] - Mount NFS's Directory
+  - name: INITIAL INSTALLATION - NFS [STEP 56] - Mount NFS's Directory
     command: mount -a
     args:
       warn: no
